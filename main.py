@@ -5,7 +5,7 @@ import os
 app = FastAPI()
 
 # Use environment variable - do NOT hardcode secrets
-RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY", "")
+RAPIDAPI_KEY = os.getenv("rapidapi-key", "")
 
 @app.get("/")
 def home():
