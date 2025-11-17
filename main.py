@@ -1,11 +1,10 @@
 from fastapi import FastAPI, Request
-import requests
-import os
+import requests, os
 
 app = FastAPI()
 
-# Use environment variable - do NOT hardcode secrets
-RAPIDAPI_KEY = os.getenv("rapidapi-key", "")
+# Read secret from env (Azure mapping will set RAPIDAPI_KEY)
+RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY") or os.environ.get("rapidapi-key")
 
 @app.get("/")
 def home():
@@ -17,7 +16,6 @@ def hospital_info(payload: dict):
     city = payload.get("city", "")
     host = "indian-hospitals.p.rapidapi.com"
     url = f"https://{host}/getByName"
-
     headers = {
         "X-RapidAPI-Key": RAPIDAPI_KEY,
         "X-RapidAPI-Host": host
@@ -33,11 +31,4 @@ def hospital_info(payload: dict):
         data = resp.json()
     except Exception:
         data = {"error": "Upstream returned non-json", "status": resp.status_code, "text": resp.text}
-    return {"source": "rapidapi", "status": resp.status_code, "data": data}
-
-
-# Optional: run locally with uvicorn (useful for local testing)
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.getenv("PORT", "80"))  # Azure expects port 80 by default
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+    return {"source":"rapidapi", "status": resp.status_code, "data": data}
